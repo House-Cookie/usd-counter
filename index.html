@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contador de Dólares</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f0e;
+    --surface: #141714;
+    --card: #1a1e1a;
+    --border: #2a2e2a;
+    --accent: #b8f55a;
+    --accent-dim: #8abf3a;
+    --red: #ff5e5e;
+    --red-dim: #cc4444;
+    --text: #e8ede8;
+    --muted: #6b7a6b;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px 80px;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(184,245,90,0.06) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 52px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  header h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 400;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  header p {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ── BALANCE CARD ── */
+  .balance-card {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 560px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--card);
+    animation: fadeUp 0.6s 0.1s ease both;
+    box-shadow: 0 0 0 1px rgba(184,245,90,0.04), 0 24px 60px rgba(0,0,0,0.5);
+    margin-bottom: 28px;
+  }
+
+  .dollar-sign {
+    background: var(--accent);
+    color: var(--bg);
+    width: 80px;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    font-weight: 400;
+    flex-shrink: 0;
+    letter-spacing: -0.02em;
+    position: relative;
+  }
+
+  .dollar-sign::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(0,0,0,0.3);
+  }
+
+  .balance-display {
+    flex: 1;
+    padding: 22px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .balance-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .balance-amount {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    transition: color 0.4s, transform 0.2s;
+    line-height: 1.1;
+  }
+
+  .balance-amount.flash-up {
+    color: var(--accent);
+    transform: scale(1.03);
+  }
+
+  .balance-amount.flash-down {
+    color: var(--red);
+    transform: scale(1.03);
+  }
+
+  /* ── ACTIONS ── */
+  .actions {
+    width: 100%;
+    max-width: 560px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    animation: fadeUp 0.6s 0.2s ease both;
+    margin-bottom: 36px;
+  }
+
+  .action-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .action-box.add:hover { border-color: var(--accent-dim); }
+  .action-box.sub:hover { border-color: var(--red-dim); }
+
+  .action-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .action-title span {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-family: var(--mono);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .action-box.add .action-title span {
+    background: rgba(184,245,90,0.15);
+    color: var(--accent);
+  }
+
+  .action-box.sub .action-title span {
+    background: rgba(255,94,94,0.15);
+    color: var(--red);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .amount-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .amount-input:focus {
+    border-color: var(--accent);
+  }
+
+  .action-box.sub .amount-input:focus {
+    border-color: var(--red);
+  }
+
+  .amount-input::placeholder { color: var(--muted); }
+
+  /* hide number input arrows */
+  .amount-input::-webkit-inner-spin-button,
+  .amount-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .amount-input[type=number] { -moz-appearance: textfield; }
+
+  .btn {
+    border: none;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  .btn:active { transform: scale(0.96); }
+
+  .btn-add {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .btn-add:hover { background: #c8ff66; }
+
+  .btn-sub {
+    background: var(--red);
+    color: #fff;
+  }
+  .btn-sub:hover { background: #ff7272; }
+
+  .note-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    padding: 7px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .note-input:focus { border-color: var(--border); color: var(--text); }
+  .note-input::placeholder { color: var(--muted); opacity: 0.6; }
+
+  /* ── HISTORY ── */
+  .history-section {
+    width: 100%;
+    max-width: 560px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .history-header h2 {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .btn-clear {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: slideIn 0.3s ease both;
+  }
+
+  .history-item .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot.plus { background: var(--accent); }
+  .dot.minus { background: var(--red); }
+
+  .history-item .info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .history-item .hi-amount {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .hi-amount.plus { color: var(--accent); }
+  .hi-amount.minus { color: var(--red); }
+
+  .history-item .hi-note {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .history-item .hi-time {
+    font-size: 0.65rem;
+    color: var(--muted);
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .history-item .hi-balance {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 1px;
+    text-align: right;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 40px 0;
+    letter-spacing: 0.05em;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 10px 20px;
+    font-size: 0.78rem;
+    color: var(--text);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 480px) {
+    .actions { grid-template-columns: 1fr; }
+    .dollar-sign { width: 60px; font-size: 2rem; }
+    .balance-display { padding: 18px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dollar Tracker</h1>
+  <p>Tu saldo persiste entre sesiones</p>
+</header>
+
+<!-- BALANCE CARD -->
+<div class="balance-card">
+  <div class="dollar-sign">$</div>
+  <div class="balance-display">
+    <span class="balance-label">Saldo actual</span>
+    <div class="balance-amount" id="balanceDisplay">0.00</div>
+  </div>
+</div>
+
+<!-- ACTIONS -->
+<div class="actions">
+  <div class="action-box add">
+    <div class="action-title">
+      <span>+</span> Agregar saldo
+    </div>
+    <div class="input-row">
+      <input class="amount-input" type="number" id="addAmount" placeholder="0.00" min="0" step="0.01">
+      <button class="btn btn-add" onclick="applyTransaction('add')">Agregar</button>
+    </div>
+    <input class="note-input" type="text" id="addNote" placeholder="Nota (opcional)" maxlength="60">
+  </div>
+
+  <div class="action-box sub">
+    <div class="action-title">
+      <span>−</span> Restar saldo
+    </div>
+    <div class="input-row">
+      <input class="amount-input" type="number" id="subAmount" placeholder="0.00" min="0" step="0.01">
+      <button class="btn btn-sub" onclick="applyTransaction('sub')">Restar</button>
+    </div>
+    <input class="note-input" type="text" id="subNote" placeholder="Nota (opcional)" maxlength="60">
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="history-section">
+  <div class="history-header">
+    <h2>Historial de movimientos</h2>
+    <button class="btn-clear" onclick="clearHistory()">Limpiar todo</button>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'dollarTracker_v1';
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { balance: 0, history: [] };
+      return JSON.parse(raw);
+    } catch { return { balance: 0, history: [] }; }
+  }
+
+  function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function formatCurrency(n) {
+    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function formatTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) +
+           ' · ' + d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function showToast(msg, color) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.borderColor = color === 'green' ? 'var(--accent)' : 'var(--red)';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function flashBalance(type) {
+    const el = document.getElementById('balanceDisplay');
+    el.classList.remove('flash-up', 'flash-down');
+    void el.offsetWidth;
+    el.classList.add(type === 'add' ? 'flash-up' : 'flash-down');
+    setTimeout(() => el.classList.remove('flash-up', 'flash-down'), 500);
+  }
+
+  function applyTransaction(type) {
+    const amountInput = document.getElementById(type === 'add' ? 'addAmount' : 'subAmount');
+    const noteInput   = document.getElementById(type === 'add' ? 'addNote'   : 'subNote');
+    const raw = parseFloat(amountInput.value);
+
+    if (isNaN(raw) || raw <= 0) {
+      showToast('Ingresa un monto válido mayor a 0', 'red');
+      amountInput.focus();
+      return;
+    }
+
+    const data = loadData();
+    const amount = Math.round(raw * 100) / 100;
+
+    if (type === 'sub' && amount > data.balance) {
+      showToast('Saldo insuficiente para restar ese monto', 'red');
+      return;
+    }
+
+    const prev = data.balance;
+    data.balance = type === 'add'
+      ? Math.round((data.balance + amount) * 100) / 100
+      : Math.round((data.balance - amount) * 100) / 100;
+
+    const entry = {
+      id: Date.now(),
+      type,
+      amount,
+      note: noteInput.value.trim() || '',
+      timestamp: Date.now(),
+      balanceAfter: data.balance
+    };
+
+    data.history.unshift(entry);
+    saveData(data);
+
+    renderBalance(data.balance);
+    renderHistory(data.history);
+    flashBalance(type);
+
+    const sign = type === 'add' ? '+' : '-';
+    showToast(`${sign}$${formatCurrency(amount)} aplicado`, type === 'add' ? 'green' : 'red');
+
+    amountInput.value = '';
+    noteInput.value   = '';
+  }
+
+  function clearHistory() {
+    if (!confirm('¿Borrar todo el historial? El saldo actual se mantiene.')) return;
+    const data = loadData();
+    data.history = [];
+    saveData(data);
+    renderHistory([]);
+    showToast('Historial borrado', 'red');
+  }
+
+  function renderBalance(balance) {
+    document.getElementById('balanceDisplay').textContent = '$' + formatCurrency(balance);
+  }
+
+  function renderHistory(history) {
+    const list = document.getElementById('historyList');
+    if (!history.length) {
+      list.innerHTML = '<div class="empty-state">Sin movimientos aún.<br>Agrega o resta saldo para comenzar.</div>';
+      return;
+    }
+
+    list.innerHTML = history.map(entry => `
+      <div class="history-item">
+        <div class="dot ${entry.type === 'add' ? 'plus' : 'minus'}"></div>
+        <div class="info">
+          <div class="hi-amount ${entry.type === 'add' ? 'plus' : 'minus'}">
+            ${entry.type === 'add' ? '+' : '-'}$${formatCurrency(entry.amount)}
+          </div>
+          <div class="hi-note">${entry.note || (entry.type === 'add' ? 'Depósito' : 'Retiro')}</div>
+        </div>
+        <div>
+          <div class="hi-time">${formatTime(entry.timestamp)}</div>
+          <div class="hi-balance">Saldo: $${formatCurrency(entry.balanceAfter)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // allow Enter key on inputs
+  document.querySelectorAll('.amount-input').forEach(inp => {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const type = inp.id === 'addAmount' ? 'add' : 'sub';
+        applyTransaction(type);
+      }
+    });
+  });
+
+  // ── INIT ──
+  const data = loadData();
+  renderBalance(data.balance);
+  renderHistory(data.history);
+</script>
+</body>
+</html>
