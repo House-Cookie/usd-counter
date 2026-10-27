@@ -2,620 +2,374 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contador de Dólares</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contador de dólares</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d0f0e;
-    --surface: #141714;
-    --card: #1a1e1a;
-    --border: #2a2e2a;
-    --accent: #b8f55a;
-    --accent-dim: #8abf3a;
-    --red: #ff5e5e;
-    --red-dim: #cc4444;
-    --text: #e8ede8;
-    --muted: #6b7a6b;
-    --mono: 'DM Mono', monospace;
-    --serif: 'DM Serif Display', serif;
+    --fondo: #e8edf1;
+    --papel: #f7f9fa;
+    --tinta: #12343b;
+    --tinta-suave: #5d7479;
+    --linea: #c9d4d9;
+    --suma: #2b7a58;
+    --suma-fondo: #dcefe5;
+    --resta: #b0402e;
+    --resta-fondo: #f6e0db;
+    --fuente: "Bricolage Grotesque", "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-tema="claro"]) {
+      --fondo: #0f1d21;
+      --papel: #172b30;
+      --tinta: #e3eef0;
+      --tinta-suave: #8fa8ad;
+      --linea: #2c474d;
+      --suma: #5fc596;
+      --suma-fondo: #1b3a2f;
+      --resta: #ee8b79;
+      --resta-fondo: #3d2420;
+    }
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
+    background: var(--fondo);
+    color: var(--tinta);
+    font-family: var(--fuente);
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 48px 24px 80px;
-    background-image:
-      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(184,245,90,0.06) 0%, transparent 70%),
-      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
-      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
+    padding: 32px 20px 56px;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+
+  h1 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0 0 20px;
+    color: var(--tinta-suave);
   }
 
-  header {
-    text-align: center;
-    margin-bottom: 52px;
-    animation: fadeDown 0.7s ease both;
-  }
-
-  header h1 {
-    font-family: var(--serif);
-    font-size: clamp(2rem, 5vw, 3.4rem);
-    font-weight: 400;
-    color: var(--accent);
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
-  header p {
-    font-size: 0.75rem;
-    color: var(--muted);
-    margin-top: 8px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  /* ── BALANCE CARD ── */
-  .balance-card {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    width: 100%;
-    max-width: 560px;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    background: var(--card);
-    animation: fadeUp 0.6s 0.1s ease both;
-    box-shadow: 0 0 0 1px rgba(184,245,90,0.04), 0 24px 60px rgba(0,0,0,0.5);
-    margin-bottom: 28px;
-  }
-
-  .dollar-sign {
-    background: var(--accent);
-    color: var(--bg);
-    width: 80px;
-    min-height: 110px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--serif);
-    font-size: 2.6rem;
-    font-weight: 400;
-    flex-shrink: 0;
-    letter-spacing: -0.02em;
-    position: relative;
-  }
-
-  .dollar-sign::after {
-    content: '';
-    position: absolute;
-    right: -1px;
-    top: 0; bottom: 0;
-    width: 1px;
-    background: rgba(0,0,0,0.3);
-  }
-
-  .balance-display {
-    flex: 1;
-    padding: 22px 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .balance-label {
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-  }
-
-  .balance-amount {
-    font-family: var(--serif);
-    font-size: clamp(2rem, 6vw, 3rem);
-    font-weight: 400;
-    color: var(--text);
-    letter-spacing: -0.02em;
-    transition: color 0.4s, transform 0.2s;
-    line-height: 1.1;
-  }
-
-  .balance-amount.flash-up {
-    color: var(--accent);
-    transform: scale(1.03);
-  }
-
-  .balance-amount.flash-down {
-    color: var(--red);
-    transform: scale(1.03);
-  }
-
-  /* ── ACTIONS ── */
-  .actions {
-    width: 100%;
-    max-width: 560px;
+  /* Saldo: signo a la izquierda, cuadro a la derecha */
+  .saldo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    animation: fadeUp 0.6s 0.2s ease both;
-    margin-bottom: 36px;
+    grid-template-columns: auto 1fr;
+    align-items: stretch;
+    gap: 16px;
   }
-
-  .action-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.2s;
-  }
-
-  .action-box.add:hover { border-color: var(--accent-dim); }
-  .action-box.sub:hover { border-color: var(--red-dim); }
-
-  .action-title {
-    font-size: 0.65rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .action-title span {
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    font-family: var(--mono);
-    font-weight: 500;
+  .signo {
+    font-size: clamp(5rem, 22vw, 9rem);
+    font-weight: 800;
     line-height: 1;
-  }
-
-  .action-box.add .action-title span {
-    background: rgba(184,245,90,0.15);
-    color: var(--accent);
-  }
-
-  .action-box.sub .action-title span {
-    background: rgba(255,94,94,0.15);
-    color: var(--red);
-  }
-
-  .input-row {
     display: flex;
-    gap: 8px;
-  }
-
-  .amount-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 0.9rem;
-    padding: 9px 12px;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .amount-input:focus {
-    border-color: var(--accent);
-  }
-
-  .action-box.sub .amount-input:focus {
-    border-color: var(--red);
-  }
-
-  .amount-input::placeholder { color: var(--muted); }
-
-  /* hide number input arrows */
-  .amount-input::-webkit-inner-spin-button,
-  .amount-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .amount-input[type=number] { -moz-appearance: textfield; }
-
-  .btn {
-    border: none;
-    border-radius: 8px;
-    padding: 9px 14px;
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    white-space: nowrap;
-    letter-spacing: 0.03em;
-  }
-
-  .btn:active { transform: scale(0.96); }
-
-  .btn-add {
-    background: var(--accent);
-    color: var(--bg);
-  }
-  .btn-add:hover { background: #c8ff66; }
-
-  .btn-sub {
-    background: var(--red);
-    color: #fff;
-  }
-  .btn-sub:hover { background: #ff7272; }
-
-  .note-input {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    padding: 7px 12px;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-
-  .note-input:focus { border-color: var(--border); color: var(--text); }
-  .note-input::placeholder { color: var(--muted); opacity: 0.6; }
-
-  /* ── HISTORY ── */
-  .history-section {
-    width: 100%;
-    max-width: 560px;
-    animation: fadeUp 0.6s 0.3s ease both;
-  }
-
-  .history-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 14px;
+    color: var(--suma);
+    user-select: none;
   }
-
-  .history-header h2 {
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 400;
-  }
-
-  .btn-clear {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
+  .cuadro {
+    background: var(--papel);
+    border: 2px solid var(--tinta);
     border-radius: 6px;
-    padding: 4px 10px;
-    font-family: var(--mono);
-    font-size: 0.65rem;
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .btn-clear:hover { border-color: var(--red); color: var(--red); }
-
-  .history-list {
+    padding: 22px 24px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-  }
-
-  .history-item {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    animation: slideIn 0.3s ease both;
-  }
-
-  .history-item .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .dot.plus { background: var(--accent); }
-  .dot.minus { background: var(--red); }
-
-  .history-item .info {
-    flex: 1;
+    justify-content: center;
     min-width: 0;
   }
-
-  .history-item .hi-amount {
-    font-size: 0.95rem;
-    font-weight: 500;
+  .cuadro small { color: var(--tinta-suave); font-size: .9rem; margin-bottom: 4px; }
+  #saldo {
+    font-size: clamp(2rem, 9vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+  #saldo.cambio { animation: pulso .35s ease-out; }
+  @keyframes pulso {
+    0% { transform: scale(1.04); }
+    100% { transform: scale(1); }
   }
 
-  .hi-amount.plus { color: var(--accent); }
-  .hi-amount.minus { color: var(--red); }
+  /* Controles */
+  .controles {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: stretch;
+  }
+  .campo {
+    display: flex;
+    align-items: center;
+    background: var(--papel);
+    border: 2px solid var(--linea);
+    border-radius: 6px;
+    padding: 0 16px;
+    min-width: 0;
+  }
+  .campo:focus-within { border-color: var(--tinta); }
+  .campo span { color: var(--tinta-suave); font-weight: 600; margin-right: 8px; }
+  .campo input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--tinta);
+    font: inherit;
+    font-size: 1.4rem;
+    font-weight: 600;
+    padding: 14px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .campo input::placeholder { color: var(--tinta-suave); opacity: .6; }
 
-  .history-item .hi-note {
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .boton {
+    font: inherit;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    width: 72px;
+    border-radius: 6px;
+    border: 2px solid currentColor;
+    cursor: pointer;
+    transition: background-color .15s, color .15s;
   }
-
-  .history-item .hi-time {
-    font-size: 0.65rem;
-    color: var(--muted);
-    flex-shrink: 0;
-    text-align: right;
-  }
-
-  .history-item .hi-balance {
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-top: 1px;
-    text-align: right;
-  }
-
-  .empty-state {
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.8rem;
-    padding: 40px 0;
-    letter-spacing: 0.05em;
-    border: 1px dashed var(--border);
-    border-radius: 12px;
-  }
-
-  /* ── ANIMATIONS ── */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-10px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed;
-    bottom: 32px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 40px;
-    padding: 10px 20px;
-    font-size: 0.78rem;
-    color: var(--text);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s, transform 0.3s;
-    z-index: 100;
-    white-space: nowrap;
+  .boton.mas { color: var(--suma); background: var(--suma-fondo); }
+  .boton.menos { color: var(--resta); background: var(--resta-fondo); }
+  .boton.mas:hover { background: var(--suma); color: var(--papel); }
+  .boton.menos:hover { background: var(--resta); color: var(--papel); }
+  .boton:focus-visible, .campo input:focus-visible {
+    outline: 3px solid var(--tinta);
+    outline-offset: 2px;
   }
 
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  #mensaje {
+    min-height: 1.4em;
+    margin: 10px 2px 0;
+    font-size: .95rem;
+    color: var(--resta);
   }
 
-  @media (max-width: 480px) {
-    .actions { grid-template-columns: 1fr; }
-    .dollar-sign { width: 60px; font-size: 2rem; }
-    .balance-display { padding: 18px 20px; }
+  /* Historial */
+  .historial { margin-top: 28px; }
+  .historial h2 { font-size: 1.15rem; margin: 0 0 12px; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 6px 14px;
+    align-items: center;
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--linea);
+  }
+  .marca {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 1.3rem;
+  }
+  li.suma .marca { background: var(--suma-fondo); color: var(--suma); }
+  li.resta .marca { background: var(--resta-fondo); color: var(--resta); }
+  .monto { font-weight: 800; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+  li.suma .monto { color: var(--suma); }
+  li.resta .monto { color: var(--resta); }
+  .fecha { color: var(--tinta-suave); font-size: .85rem; }
+  .despues { text-align: right; font-size: .85rem; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
+  .detalle { display: flex; flex-direction: column; }
+  .vacio { color: var(--tinta-suave); padding: 18px 4px; }
+
+  #aviso-almacen {
+    display: none;
+    margin-top: 24px;
+    padding: 12px 14px;
+    border: 2px solid var(--resta);
+    border-radius: 6px;
+    color: var(--resta);
+    font-size: .9rem;
+  }
+
+  @media (max-width: 460px) {
+    .controles { grid-template-columns: 1fr 1fr; }
+    .campo { grid-column: 1 / -1; }
+    .boton { width: auto; padding: 10px 0; }
+    .cuadro { padding: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #saldo.cambio { animation: none; }
+    .boton { transition: none; }
   }
 </style>
 </head>
 <body>
+<main>
+  <h1>Contador de dólares</h1>
 
-<header>
-  <h1>Dollar Tracker</h1>
-  <p>Tu saldo persiste entre sesiones</p>
-</header>
-
-<!-- BALANCE CARD -->
-<div class="balance-card">
-  <div class="dollar-sign">$</div>
-  <div class="balance-display">
-    <span class="balance-label">Saldo actual</span>
-    <div class="balance-amount" id="balanceDisplay">0.00</div>
-  </div>
-</div>
-
-<!-- ACTIONS -->
-<div class="actions">
-  <div class="action-box add">
-    <div class="action-title">
-      <span>+</span> Agregar saldo
+  <section class="saldo" aria-label="Saldo actual">
+    <div class="signo" aria-hidden="true">$</div>
+    <div class="cuadro">
+      <small>Saldo actual</small>
+      <div id="saldo" aria-live="polite">0.00</div>
     </div>
-    <div class="input-row">
-      <input class="amount-input" type="number" id="addAmount" placeholder="0.00" min="0" step="0.01">
-      <button class="btn btn-add" onclick="applyTransaction('add')">Agregar</button>
-    </div>
-    <input class="note-input" type="text" id="addNote" placeholder="Nota (opcional)" maxlength="60">
-  </div>
+  </section>
 
-  <div class="action-box sub">
-    <div class="action-title">
-      <span>−</span> Restar saldo
-    </div>
-    <div class="input-row">
-      <input class="amount-input" type="number" id="subAmount" placeholder="0.00" min="0" step="0.01">
-      <button class="btn btn-sub" onclick="applyTransaction('sub')">Restar</button>
-    </div>
-    <input class="note-input" type="text" id="subNote" placeholder="Nota (opcional)" maxlength="60">
-  </div>
-</div>
+  <section class="controles" aria-label="Modificar saldo">
+    <label class="campo">
+      <span>$</span>
+      <input id="monto" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="Monto en dólares">
+    </label>
+    <button class="boton mas" id="btn-mas" type="button" aria-label="Agregar al saldo">+</button>
+    <button class="boton menos" id="btn-menos" type="button" aria-label="Restar del saldo">&minus;</button>
+  </section>
+  <div id="mensaje" role="status"></div>
 
-<!-- HISTORY -->
-<div class="history-section">
-  <div class="history-header">
-    <h2>Historial de movimientos</h2>
-    <button class="btn-clear" onclick="clearHistory()">Limpiar todo</button>
-  </div>
-  <div class="history-list" id="historyList"></div>
-</div>
+  <section class="historial" aria-label="Historial">
+    <h2>Historial</h2>
+    <ul id="lista"></ul>
+  </section>
 
-<div class="toast" id="toast"></div>
+  <div id="aviso-almacen">
+    Tu navegador no permite guardar datos en esta página (por ejemplo, en modo privado). El saldo funciona, pero se perderá al cerrar la pestaña.
+  </div>
+</main>
 
 <script>
-  const STORAGE_KEY = 'dollarTracker_v1';
+(function () {
+  var CLAVE = "contador-dolares-v1";
+  var estado = { centavos: 0, historial: [] };
+  var puedeGuardar = true;
 
-  function loadData() {
+  var $saldo = document.getElementById("saldo");
+  var $monto = document.getElementById("monto");
+  var $mensaje = document.getElementById("mensaje");
+  var $lista = document.getElementById("lista");
+
+  var formatoDinero = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var formatoFecha = new Intl.DateTimeFormat("es-MX", { dateStyle: "medium", timeStyle: "short" });
+
+  function dinero(centavos) { return formatoDinero.format(centavos / 100); }
+
+  function cargar() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { balance: 0, history: [] };
-      return JSON.parse(raw);
-    } catch { return { balance: 0, history: [] }; }
-  }
-
-  function saveData(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
-
-  function formatCurrency(n) {
-    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  function formatTime(ts) {
-    const d = new Date(ts);
-    return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) +
-           ' · ' + d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function showToast(msg, color) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.borderColor = color === 'green' ? 'var(--accent)' : 'var(--red)';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2200);
-  }
-
-  function flashBalance(type) {
-    const el = document.getElementById('balanceDisplay');
-    el.classList.remove('flash-up', 'flash-down');
-    void el.offsetWidth;
-    el.classList.add(type === 'add' ? 'flash-up' : 'flash-down');
-    setTimeout(() => el.classList.remove('flash-up', 'flash-down'), 500);
-  }
-
-  function applyTransaction(type) {
-    const amountInput = document.getElementById(type === 'add' ? 'addAmount' : 'subAmount');
-    const noteInput   = document.getElementById(type === 'add' ? 'addNote'   : 'subNote');
-    const raw = parseFloat(amountInput.value);
-
-    if (isNaN(raw) || raw <= 0) {
-      showToast('Ingresa un monto válido mayor a 0', 'red');
-      amountInput.focus();
-      return;
-    }
-
-    const data = loadData();
-    const amount = Math.round(raw * 100) / 100;
-
-    if (type === 'sub' && amount > data.balance) {
-      showToast('Saldo insuficiente para restar ese monto', 'red');
-      return;
-    }
-
-    const prev = data.balance;
-    data.balance = type === 'add'
-      ? Math.round((data.balance + amount) * 100) / 100
-      : Math.round((data.balance - amount) * 100) / 100;
-
-    const entry = {
-      id: Date.now(),
-      type,
-      amount,
-      note: noteInput.value.trim() || '',
-      timestamp: Date.now(),
-      balanceAfter: data.balance
-    };
-
-    data.history.unshift(entry);
-    saveData(data);
-
-    renderBalance(data.balance);
-    renderHistory(data.history);
-    flashBalance(type);
-
-    const sign = type === 'add' ? '+' : '-';
-    showToast(`${sign}$${formatCurrency(amount)} aplicado`, type === 'add' ? 'green' : 'red');
-
-    amountInput.value = '';
-    noteInput.value   = '';
-  }
-
-  function clearHistory() {
-    if (!confirm('¿Borrar todo el historial? El saldo actual se mantiene.')) return;
-    const data = loadData();
-    data.history = [];
-    saveData(data);
-    renderHistory([]);
-    showToast('Historial borrado', 'red');
-  }
-
-  function renderBalance(balance) {
-    document.getElementById('balanceDisplay').textContent = '$' + formatCurrency(balance);
-  }
-
-  function renderHistory(history) {
-    const list = document.getElementById('historyList');
-    if (!history.length) {
-      list.innerHTML = '<div class="empty-state">Sin movimientos aún.<br>Agrega o resta saldo para comenzar.</div>';
-      return;
-    }
-
-    list.innerHTML = history.map(entry => `
-      <div class="history-item">
-        <div class="dot ${entry.type === 'add' ? 'plus' : 'minus'}"></div>
-        <div class="info">
-          <div class="hi-amount ${entry.type === 'add' ? 'plus' : 'minus'}">
-            ${entry.type === 'add' ? '+' : '-'}$${formatCurrency(entry.amount)}
-          </div>
-          <div class="hi-note">${entry.note || (entry.type === 'add' ? 'Depósito' : 'Retiro')}</div>
-        </div>
-        <div>
-          <div class="hi-time">${formatTime(entry.timestamp)}</div>
-          <div class="hi-balance">Saldo: $${formatCurrency(entry.balanceAfter)}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // allow Enter key on inputs
-  document.querySelectorAll('.amount-input').forEach(inp => {
-    inp.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        const type = inp.id === 'addAmount' ? 'add' : 'sub';
-        applyTransaction(type);
+      var crudo = localStorage.getItem(CLAVE);
+      if (crudo) {
+        var datos = JSON.parse(crudo);
+        if (datos && typeof datos.centavos === "number" && Array.isArray(datos.historial)) {
+          estado = datos;
+        }
       }
-    });
-  });
+    } catch (e) {
+      puedeGuardar = false;
+    }
+  }
 
-  // ── INIT ──
-  const data = loadData();
-  renderBalance(data.balance);
-  renderHistory(data.history);
+  function guardar() {
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify(estado));
+    } catch (e) {
+      puedeGuardar = false;
+      document.getElementById("aviso-almacen").style.display = "block";
+    }
+  }
+
+  // Convierte texto como "1,250.50" o "20" a centavos enteros (evita errores de decimales)
+  function leerMonto(texto) {
+    var limpio = texto.replace(/[\s$,]/g, "");
+    if (!/^\d+(\.\d{1,2})?$/.test(limpio)) return null;
+    var partes = limpio.split(".");
+    var centavos = parseInt(partes[0], 10) * 100 + (partes[1] ? parseInt((partes[1] + "0").slice(0, 2), 10) : 0);
+    if (!isFinite(centavos) || centavos <= 0 || centavos > 9e13) return null;
+    return centavos;
+  }
+
+  function avisar(texto) { $mensaje.textContent = texto || ""; }
+
+  function dibujar(animar) {
+    $saldo.textContent = dinero(estado.centavos);
+    if (animar) {
+      $saldo.classList.remove("cambio");
+      void $saldo.offsetWidth;
+      $saldo.classList.add("cambio");
+    }
+
+    $lista.innerHTML = "";
+    if (estado.historial.length === 0) {
+      var vacio = document.createElement("li");
+      vacio.className = "vacio";
+      vacio.style.display = "block";
+      vacio.textContent = "Aún no hay movimientos. Escribe un monto y usa + o − para empezar.";
+      $lista.appendChild(vacio);
+      return;
+    }
+    estado.historial.forEach(function (m) {
+      var li = document.createElement("li");
+      li.className = m.tipo === "suma" ? "suma" : "resta";
+
+      var marca = document.createElement("div");
+      marca.className = "marca";
+      marca.textContent = m.tipo === "suma" ? "+" : "\u2212";
+
+      var detalle = document.createElement("div");
+      detalle.className = "detalle";
+      var monto = document.createElement("span");
+      monto.className = "monto";
+      monto.textContent = (m.tipo === "suma" ? "+ $" : "\u2212 $") + dinero(m.centavos);
+      var fecha = document.createElement("span");
+      fecha.className = "fecha";
+      fecha.textContent = formatoFecha.format(new Date(m.fecha));
+      detalle.appendChild(monto);
+      detalle.appendChild(fecha);
+
+      var despues = document.createElement("div");
+      despues.className = "despues";
+      despues.textContent = "Saldo: $" + dinero(m.saldoDespues);
+
+      li.appendChild(marca);
+      li.appendChild(detalle);
+      li.appendChild(despues);
+      $lista.appendChild(li);
+    });
+  }
+
+  function mover(tipo) {
+    var centavos = leerMonto($monto.value);
+    if (centavos === null) {
+      avisar("Escribe un monto válido mayor a 0, por ejemplo 25 o 25.50.");
+      $monto.focus();
+      return;
+    }
+    if (tipo === "resta" && centavos > estado.centavos) {
+      avisar("No puedes restar más de lo que tienes. Saldo actual: $" + dinero(estado.centavos) + ".");
+      $monto.focus();
+      return;
+    }
+    estado.centavos += tipo === "suma" ? centavos : -centavos;
+    estado.historial.unshift({
+      tipo: tipo,
+      centavos: centavos,
+      saldoDespues: estado.centavos,
+      fecha: new Date().toISOString()
+    });
+    guardar();
+    avisar("");
+    $monto.value = "";
+    $monto.focus();
+    dibujar(true);
+  }
+
+  document.getElementById("btn-mas").addEventListener("click", function () { mover("suma"); });
+  document.getElementById("btn-menos").addEventListener("click", function () { mover("resta"); });
+  $monto.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); mover("suma"); }
+  });
+  $monto.addEventListener("input", function () { avisar(""); });
+
+  cargar();
+  if (!puedeGuardar) document.getElementById("aviso-almacen").style.display = "block";
+  dibujar(false);
+})();
 </script>
 </body>
 </html>
